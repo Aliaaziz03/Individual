@@ -1,51 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:individual1/authentication/register.dart';
 import 'package:local_auth/local_auth.dart';
 
-class FingerprintLoginScreen extends StatefulWidget {
+class FingerprintAuthPage extends StatefulWidget {
   @override
-  _FingerprintLoginScreenState createState() => _FingerprintLoginScreenState();
+  _FingerprintAuthPageState createState() => _FingerprintAuthPageState();
 }
 
-class _FingerprintLoginScreenState extends State<FingerprintLoginScreen> {
-  final LocalAuthentication _localAuthentication = LocalAuthentication();
-  String _authorized = "Not Authorized";
+class _FingerprintAuthPageState extends State<FingerprintAuthPage> {
+  final LocalAuthentication _localAuth = LocalAuthentication();
+  bool _isAuthenticated = false;
+  String _authMessage = "Please authenticate to proceed.";
 
-  /// Check if device supports biometrics
-  Future<bool> _checkBiometricAvailability() async {
-    bool canAuthenticate = false;
+  Future<void> _authenticateWithFingerprint() async {
     try {
-      canAuthenticate = await _localAuthentication.canCheckBiometrics;
-    } catch (e) {
-      print("Error checking biometrics: $e");
-    }
-    return canAuthenticate;
-  }
+      // Check if fingerprint (biometric) authentication is available
+      bool isBiometricAvailable = await _localAuth.canCheckBiometrics;
+      if (!isBiometricAvailable) {
+        setState(() {
+          _authMessage = "Fingerprint authentication is not available.";
+        });
+        return;
+      }
 
-  /// Authenticate using biometrics
-  Future<void> _authenticate() async {
-    bool isAuthenticated = false;
-    try {
-      isAuthenticated = await _localAuthentication.authenticate(
-        localizedReason: "Authenticate to access the app",
+      // Authenticate using fingerprint
+      bool authenticated = await _localAuth.authenticate(
+        localizedReason: 'Use your fingerprint to authenticate',
         options: const AuthenticationOptions(
-          biometricOnly: true,
+          biometricOnly: true, // Ensure only biometrics (no PIN/password)
         ),
       );
+
+      setState(() {
+        _isAuthenticated = authenticated;
+        _authMessage = authenticated
+            ? "Authentication successful! Welcome."
+            : "Authentication failed. Try again.";
+      });
     } catch (e) {
-      print("Error authenticating: $e");
-    }
-
-    setState(() {
-      _authorized = isAuthenticated ? "Authorized" : "Not Authorized";
-    });
-
-    if (isAuthenticated) {
-      // Navigate to the home screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => RegisterPage()),
-      );
+      setState(() {
+        _authMessage = "Error during authentication: $e";
+      });
     }
   }
 
@@ -53,30 +47,24 @@ class _FingerprintLoginScreenState extends State<FingerprintLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Fingerprint Login"),
+        title: Text('Fingerprint Authentication'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Status: $_authorized",
-              style: const TextStyle(fontSize: 20),
+              _authMessage,
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-                bool canAuthenticate = await _checkBiometricAvailability();
-                if (canAuthenticate) {
-                  _authenticate();
-                } else {
-                  setState(() {
-                    _authorized = "Biometric authentication not available.";
-                  });
-                }
-              },
-              child: const Text("Login with Fingerprint"),
+              onPressed: _authenticateWithFingerprint,
+              child: Text(
+                _isAuthenticated ? "Authenticated!" : "Authenticate",
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ],
         ),
@@ -84,4 +72,3 @@ class _FingerprintLoginScreenState extends State<FingerprintLoginScreen> {
     );
   }
 }
-

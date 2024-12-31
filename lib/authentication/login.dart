@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
         password: _controllerPassword.text
       );
       Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => HomePage()),
+      MaterialPageRoute(builder: (_) =>  HomePage()),
     );
     } on FirebaseAuthException catch (e) {
       
@@ -81,7 +81,7 @@ Widget build(BuildContext context) {
             Container(
               width: double.infinity,
               height: double.infinity,
-              color: Colors.deepPurple[100], // Background color
+              color: Colors.pink.withOpacity(0.3), // Background color
             ),
             Center(
               child: Container(
@@ -106,7 +106,7 @@ Widget build(BuildContext context) {
                   'LOGIN',
                   style: GoogleFonts.patrickHand(
                     fontSize: 40,
-                    color: Color.fromARGB(255, 81, 58, 145),
+                    color: Colors.pink,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -172,7 +172,7 @@ Widget build(BuildContext context) {
                           child: Container(
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Colors.deepPurple, Colors.purpleAccent],
+                                colors: [Color.fromARGB(255, 175, 69, 105), Color.fromARGB(255, 228, 157, 181)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),

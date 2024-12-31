@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:individual1/AppsFlow/Calendar.dart';
+import 'package:individual1/AppsFlow/homepage.dart';
 import 'package:individual1/authentication/login.dart';
 import 'package:individual1/authentication/register.dart';
 
@@ -31,7 +33,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(brightness: Brightness.light),
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.system,
-      home: const LoginPage(),
+      home:  LoginPage(),
      
     );
   }

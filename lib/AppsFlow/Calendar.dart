@@ -1,8 +1,11 @@
+import 'dart:async'; // For Timer
 import 'package:flutter/material.dart';
+import 'package:individual1/AppsFlow/homepage.dart';
+import 'package:individual1/AppsFlow/profile.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shake/shake.dart';
+
 
 class PeriodSelectionScreen extends StatefulWidget {
   @override
@@ -10,10 +13,20 @@ class PeriodSelectionScreen extends StatefulWidget {
 }
 
 class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
+  int _currentIndex = 0;
+
   late DateTime _focusedDay;
   List<DateTime> _selectedDates = [];
   List<List<DateTime>> _periods = [];
   int _selectedIndex = 0; // For navigation bar
+  Timer? _saveTimer; // Timer to delay saving
+
+   // List of pages for navigation
+  final List<Widget> _pages = [
+    HomePage(),
+    PeriodSelectionScreen(),
+    Profile(), // Replace with your Profile class
+  ];
 
   @override
   void initState() {
@@ -21,32 +34,39 @@ class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
     _focusedDay = DateTime.now();
 
     // Initialize the shake detector
-    ShakeDetector.autoStart(
-      onPhoneShake: () {
-        _savePeriodToFirebase(_selectedDates);
-      },
-    );
+  
+  }
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel(); // Cancel the timer to avoid memory leaks
+    super.dispose();
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     if (selectedDay.isAfter(DateTime.now())) {
-      // If the selected day is in the future, do nothing
       return;
     }
 
     setState(() {
       _focusedDay = focusedDay;
 
-      // If the date is already selected, remove it
       if (_selectedDates.contains(selectedDay)) {
         _selectedDates.remove(selectedDay);
       } else {
         _selectedDates.add(selectedDay);
       }
 
-      // Sort the list to make sure the dates are in chronological order
       _selectedDates.sort();
       _periods = _detectPeriods(_selectedDates);
+
+      // Cancel any existing timer
+      _saveTimer?.cancel();
+
+      // Start a new timer to save after 5 seconds
+      _saveTimer = Timer(Duration(seconds: 5), () {
+        _savePeriodToFirebase(_selectedDates);
+      });
     });
   }
 
@@ -101,7 +121,7 @@ class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    var scaffold = Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.pink,
         title: Text(
@@ -113,7 +133,6 @@ class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
-              // Handle notification icon tap
               print("Notification tapped");
             },
           ),
@@ -121,77 +140,74 @@ class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
       ),
       body: Column(
         children: [
-        Container(
-  margin: EdgeInsets.all(16),
-  padding: EdgeInsets.all(16),
-  decoration: BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.pink.withOpacity(0.3), // Adjust opacity for a glowing effect
-        blurRadius: 20, // Increase blur for a soft glow
-        spreadRadius: 5, // Spread the glow effect further
-        offset: Offset(0, 5), // Subtle elevation effect
-      ),
-    ],
-  ),
-  child: TableCalendar(
-    firstDay: DateTime.utc(2020, 1, 1),
-    lastDay: DateTime.utc(2025, 12, 31),
-    focusedDay: _focusedDay,
-    selectedDayPredicate: (day) {
-      return _periods.any((period) => period.contains(day));
-    },
-    onDaySelected: _onDaySelected,
-    calendarStyle: CalendarStyle(
-      selectedDecoration: BoxDecoration(
-        color: Colors.red,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.redAccent.withOpacity(0.4), // Add glow to selected days
-            blurRadius: 15,
-            spreadRadius: 3,
-          ),
-        ],
-      ),
-      todayDecoration: BoxDecoration(
-        color: Colors.orange,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orange.withOpacity(0.4), // Glow for today
-            blurRadius: 15,
-            spreadRadius: 3,
-          ),
-        ],
-      ),
-    ),
-    headerStyle: HeaderStyle(
-      formatButtonVisible: false,
-      titleCentered: true,
-      titleTextStyle: TextStyle(
-        color: Colors.black,
-        fontWeight: FontWeight.bold,
-        fontSize: 18,
-      ),
-    ),
-  ),
-
-
+          Container(
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.pink.withOpacity(0.3),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: TableCalendar(
+              firstDay: DateTime.utc(2020, 1, 1),
+              lastDay: DateTime.utc(2025, 12, 31),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) {
+                return _selectedDates.contains(day);
+              },
+              onDaySelected: _onDaySelected,
+              calendarStyle: CalendarStyle(
+                selectedDecoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.redAccent.withOpacity(0.4),
+                      blurRadius: 15,
+                      spreadRadius: 3,
+                    ),
+                  ],
+                ),
+                todayDecoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withOpacity(0.4),
+                      blurRadius: 15,
+                      spreadRadius: 3,
+                    ),
+                  ],
+                ),
+              ),
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                
                 _buildInfoCard(
                   color: Colors.pink.shade100,
                   icon: Icons.bloodtype,
                   title: '5 Days',
-                  subtitle: 'Average period'
+                  subtitle: 'Average period',
                 ),
                 _buildInfoCard(
                   color: Colors.orange.shade100,
@@ -222,6 +238,7 @@ class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
           ),
         ],
       ),
+    
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.pink.shade100,
         items: [
@@ -244,6 +261,7 @@ class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
         onTap: _onItemTapped,
       ),
     );
+    return scaffold;
   }
 
   Widget _buildInfoCard({
