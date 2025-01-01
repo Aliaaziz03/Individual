@@ -93,21 +93,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Personal Information',
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

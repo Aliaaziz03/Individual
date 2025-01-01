@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:individual1/AppsFlow/NavigationBar.dart';
 import 'package:individual1/AppsFlow/homepage.dart';
 import 'package:individual1/AppsFlow/profile.dart';
 import 'package:individual1/authentication/register.dart';
@@ -45,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         password: _controllerPassword.text
       );
       Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) =>  HomePage()),
+      MaterialPageRoute(builder: (_) =>  PeriodSelectionScreen()),
     );
     } on FirebaseAuthException catch (e) {
       
@@ -167,55 +168,72 @@ Widget build(BuildContext context) {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color.fromARGB(255, 175, 69, 105), Color.fromARGB(255, 228, 157, 181)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+             
+                          Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color.fromARGB(255, 175, 69, 105), Color.fromARGB(255, 228, 157, 181)],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 10,
+                                            offset: Offset(0, 5),
+                                          ),
+                                        ],
+                                      ),
+                                      child: MaterialButton(
+                                        onPressed: () {
+                                          signInWithEmailAndPassword();
+                                        },
+                                        textColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(vertical: 15),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        child: const Text(
+                                          'Login',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  IconButton(
+                                    icon: const Icon(Icons.fingerprint, size: 40, color: Colors.pink),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => FingerprintAuthPage()),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 5),
-                                ),
-                              ],
                             ),
-                            child: MaterialButton(
-                              minWidth: double.infinity,
-                              onPressed: () {
-                                signInWithEmailAndPassword();
-                                
-                              },
-                              textColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: const Text(
-                                'Login',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-            ),
-          ]
+          ],
+        ),
       ),
-    ));
-}
+    );
+  }
 }
