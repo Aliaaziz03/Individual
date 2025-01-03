@@ -50,7 +50,11 @@ Future<void> createUserWithEmailAndPassword() async {
       // Store additional user data in Firestore
       await _firestore.collection("users").doc(userCredential.user!.uid).set({
         "username": username,
+        "email" : email,
+        "selectedDates" : [],
       });
+
+
 
       print("Firestore data written successfully.");
 

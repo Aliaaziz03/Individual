@@ -1,21 +1,19 @@
+import 'package:flutter/material.dart';
+import 'package:individual1/AppsFlow/homepage.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:table_calendar/table_calendar.dart';
 
-class PeriodSelectionScreenContent extends StatefulWidget {
+class Calculate extends StatefulWidget {
+  const Calculate({super.key});
+
   @override
-   final Function(String) onDaysLeftUpdated;
-   const PeriodSelectionScreenContent({Key? key, required this.onDaysLeftUpdated}) : super(key: key);
-
-  _PeriodSelectionScreenContentState createState() =>
-      _PeriodSelectionScreenContentState();
+  State<Calculate> createState() => _CalculateState();
 }
 
-class _PeriodSelectionScreenContentState
-    extends State<PeriodSelectionScreenContent> {
-  late DateTime _focusedDay;
+class _CalculateState extends State<Calculate> {
+   late DateTime _focusedDay;
   List<DateTime> _selectedDates = [];
   String _daysLeft = '';
   double _averageCycle = 28.0; // Default cycle length
@@ -150,78 +148,14 @@ class _PeriodSelectionScreenContentState
 
     setState(() {
       _daysLeft = daysLeft > 0
-          ? '$daysLeft'
+          ? '$daysLeft days until your next period'
           : 'Your period is here!';
     });
-     widget.onDaysLeftUpdated(_daysLeft.toString()); // Notify the parent widget
   }
   
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          margin: EdgeInsets.all(16),
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.pink.withOpacity(0.3),
-                blurRadius: 20,
-                spreadRadius: 5,
-                offset: Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              TableCalendar(
-                firstDay: DateTime.utc(2020, 1, 1),
-                lastDay: DateTime.utc(2025, 12, 31),
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (day) {
-                  return _selectedDates.any((selectedDate) =>
-                      isSameDay(selectedDate, day));
-                },
-                onDaySelected: _onDaySelected,
-                calendarStyle: CalendarStyle(
-                  selectedDecoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  todayDecoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                headerStyle: HeaderStyle(
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                  titleTextStyle: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                availableGestures: AvailableGestures.none, // Disable swipe gestures
-              ),
-              SizedBox(height: 16),
-              Text(
-                _daysLeft,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Average Cycle: ${_averageCycle.toInt()} days', // Display average cycle
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+    return HomePage(daysLeft: _daysLeft);
   }
 }

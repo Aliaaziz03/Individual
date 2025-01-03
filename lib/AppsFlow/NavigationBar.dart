@@ -16,14 +16,25 @@ class PeriodSelectionScreen extends StatefulWidget {
 
 class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
   int _selectedIndex = 1;
+  String _daysLeft = '';
+
+   // Method to update daysLeft value
+  void updateDaysLeft(String daysLeft) {
+    setState(() {
+      _daysLeft = daysLeft;
+    });
+  }
 
 
-  // Pages for bottom navigation
-  final List<Widget> _pages = [
-    PeriodSelectionScreenContent(),
-    HomePage(),
-    Profile(),
-  ];
+
+
+ 
+   // Dynamically create the pages
+  List<Widget> get _pages => [
+        PeriodSelectionScreenContent(onDaysLeftUpdated: updateDaysLeft),
+        HomePage(daysLeft: _daysLeft),
+        Profile(),
+      ];
 
   @override
 
@@ -32,6 +43,7 @@ class _PeriodSelectionScreenState extends State<PeriodSelectionScreen> {
       _selectedIndex = index;
     });
   }
+  
 
   @override
   Widget build(BuildContext context) {
